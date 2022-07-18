@@ -1,0 +1,190 @@
+/*General Styles*/
+html,body{
+	margin: 0;
+	padding: 0;
+	font-family: "Arial";
+}
+
+code{
+	white-space: pre;
+}
+
+
+a:link{
+	text-decoration: none;
+	cursor:pointer;
+}
+
+/*layout ini*/
+.flex{
+	display: flex;
+}
+
+.flex-column{
+	flex-direction: column;
+}
+
+.flex-row{
+	flex-direction: row;
+}
+
+.flex-start{
+	justify-content: flex-start;
+}
+
+.flex-end{
+	justify-content: flex-end;
+}
+
+.flex-center{
+	justify-content: center;
+	align-items: center;
+}
+
+.flex-space-around{
+	justify-content: space-around;
+}
+
+.flex-space-between{
+	justify-content: space-between;
+}
+/*layout end*/
+
+
+/*Editor ini*/
+.text-align-left{ text-align: left; }
+.text-align-right{ text-align: right; }
+.text-align-center{ text-align: center; }
+.text-align-justify{ text-align: justify; }
+
+.uppercase{ text-transform: uppercase; }
+.lowercase{ text-transform: lowercase; }
+.capitalize{ text-transform: capitalize; }
+
+.drop-caps:first-letter{
+	display:block;
+	float:left;
+	margin:3px;
+	color:#f00;
+	font-size:300%;
+}
+/*Editor end*/
+
+
+/*grid system ini*/
+.row{
+	width: 100%;
+	display: flex;
+	flex-wrap: wrap;
+}
+
+/*grid-sm */
+
+.col-sm-1 {width: 8.33%;}
+.col-sm-2 {width: 16.66%;}
+.col-sm-3 {width: 25%;}
+.col-sm-4 {width: 33.33%;}
+.col-sm-5 {width: 41.66%;}
+.col-sm-6 {width: 50%;}
+.col-sm-7 {width: 58.33%;}
+.col-sm-8 {width: 66.66%;}
+.col-sm-9 {width: 75%;}
+.col-sm-10 {width: 83.33%;}
+.col-sm-11 {width: 91.66%;}
+.col-sm-12 {width: 100%;}
+
+.col-sm-offset-1 {margin-left: 8.33%;}
+.col-sm-offset-2 {margin-left: 16.66%;}
+.col-sm-offset-3 {margin-left: 25%;}
+.col-sm-offset-4 {margin-left: 33.33%;}
+.col-sm-offset-5 {margin-left: 41.66%;}
+.col-sm-offset-6 {margin-left: 50%;}
+.col-sm-offset-7 {margin-left: 58.33%;}
+.col-sm-offset-8 {margin-left: 66.66%;}
+.col-sm-offset-9 {margin-left: 75%;}
+.col-sm-offset-10 {margin-left: 83.33%;}
+.col-sm-offset-11 {margin-left: 91.66%;}
+.col-sm-offset-12 {margin-left: 100%;}
+
+.col-sm-first { order: -9999999;}
+.col-sm-last { order: 9999999;}
+.col-sm-normal { order: 0;}
+
+.only-desktop{ display: none; }
+.only-mobile{ display: block; }
+
+/*grid-md */
+@media ( min-width: 768px ){
+
+	.col-md-1 {width: 8.33%;}
+	.col-md-2 {width: 16.66%;}
+	.col-md-3 {width: 25%;}
+	.col-md-4 {width: 33.33%;}
+	.col-md-5 {width: 41.66%;}
+	.col-md-6 {width: 50%;}
+	.col-md-7 {width: 58.33%;}
+	.col-md-8 {width: 66.66%;}
+	.col-md-9 {width: 75%;}
+	.col-md-10 {width: 83.33%;}
+	.col-md-11 {width: 91.66%;}
+	.col-md-12 {width: 100%;}
+
+	.col-md-offset-0 {margin-left: initial;}
+	.col-md-offset-1 {margin-left: 8.33%;}
+	.col-md-offset-2 {margin-left: 16.66%;}
+	.col-md-offset-3 {margin-left: 25%;}
+	.col-md-offset-4 {margin-left: 33.33%;}
+	.col-md-offset-5 {margin-left: 41.66%;}
+	.col-md-offset-6 {margin-left: 50%;}
+	.col-md-offset-7 {margin-left: 58.33%;}
+	.col-md-offset-8 {margin-left: 66.66%;}
+	.col-md-offset-9 {margin-left: 75%;}
+	.col-md-offset-10 {margin-left: 83.33%;}
+	.col-md-offset-11 {margin-left: 91.66%;}
+	.col-md-offset-12 {margin-left: 100%;}
+
+	.col-md-first { order: -9999999;}
+	.col-md-last { order: 9999999;}
+	.col-md-normal { order: 0;}
+
+	.only-desktop{ display: block; }
+	.only-mobile{ display: none; }
+
+}
+
+/*grid-lg */
+@media ( min-width: 1280px ){
+	.col-lg-1 {width: 8.33%;}
+	.col-lg-2 {width: 16.66%;}
+	.col-lg-3 {width: 25%;}
+	.col-lg-4 {width: 33.33%;}
+	.col-lg-5 {width: 41.66%;}
+	.col-lg-6 {width: 50%;}
+	.col-lg-7 {width: 58.33%;}
+	.col-lg-8 {width: 66.66%;}
+	.col-lg-9 {width: 75%;}
+	.col-lg-10 {width: 83.33%;}
+	.col-lg-11 {width: 91.66%;}
+	.col-lg-12 {width: 100%;}
+
+	.col-lg-offset-0 {margin-left: initial;}
+	.col-lg-offset-1 {margin-left: 8.33%;}
+	.col-lg-offset-2 {margin-left: 16.66%;}
+	.col-lg-offset-3 {margin-left: 25%;}
+	.col-lg-offset-4 {margin-left: 33.33%;}
+	.col-lg-offset-5 {margin-left: 41.66%;}
+	.col-lg-offset-6 {margin-left: 50%;}
+	.col-lg-offset-7 {margin-left: 58.33%;}
+	.col-lg-offset-8 {margin-left: 66.66%;}
+	.col-lg-offset-9 {margin-left: 75%;}
+	.col-lg-offset-10 {margin-left: 83.33%;}
+	.col-lg-offset-11 {margin-left: 91.66%;}
+	.col-lg-offset-12 {margin-left: 100%;}
+
+	.col-lg-first { order: -9999999;}
+	.col-lg-last { order: 9999999;}
+	.col-lg-normal { order: 0;}
+
+}
+
+/*grid system end*/
