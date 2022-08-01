@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 if ( !isset($_GET['api']) ){ exit(); }
 $api_keys = array('poke5401851','poke5401852' );
 if ( !in_array($_GET['api'] ,$api_keys) ){ echo 'No existe';exit(); }
@@ -46,6 +49,19 @@ switch ($_GET['bxc-stats-action']) {
 
 	  $file =  __DIR__;
 	  include($file.'/../phpmailer/PHPMailer.php');
+		include($file.'/../phpexcel/PHPExcel.php');
+      $objPHPExcel = new PHPExcel();
+
+      $objPHPExcel->setActiveSheetIndex(0);
+      $rowCount = 1;
+      $inputFileType = 'CSV';
+      $inputFileName = __DIR__.'/../csv/'.$filename;
+      $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+      $objPHPExcel = $objReader->load($inputFileName);
+      $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+      $xls_file = __DIR__.'/csv/'.date('YmdHis').'.xlsx';
+      $xls_file_name = date('YmdHis').'.xlsx';
+      $objWriter->save($xls_file);
 
 	  $mail = new PHPMailer\PHPMailer\PHPMailer();
 
@@ -54,10 +70,10 @@ switch ($_GET['bxc-stats-action']) {
 	          $mail->ClearAddresses();
 	  $mail->Subject   = 'Exportación Base de datos '.date('Y:m:d H:i:s');
 	  $mail->Body      = 'Export CSV adjunta.';
-	  $mail->AddAddress( 'jaimezegpi@yahoo.es' );
+	  $mail->AddAddress( $mailto );
 
-	  $mail->AddAttachment( __DIR__.'/../csv/'.$filename , 'exportacion.csv' );
-	   
+	  //$mail->AddAttachment( __DIR__.'/../csv/'.$filename , 'exportacion.csv' );
+	   $mail->AddAttachment( $xls_file , $xls_file_name );
 	  $result = $mail->Send();
 
 	  //unlink( __DIR__.'/../csv/'.$filename );

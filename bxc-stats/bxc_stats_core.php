@@ -3,9 +3,9 @@ if ( !isset($_GET['api']) ){ exit(); }
 $api_keys = array('poke5401851','poke5401852' );
 if ( !in_array($_GET['api'] ,$api_keys) ){ echo 'No existe';exit(); }
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'miradorbaron_pro');
-define('DB_USER', 'miradorbaron_loftdigital');
-define('DB_PASS', '3a-Q#E');
+define('DB_NAME', 'XXXX');
+define('DB_USER', 'XXXX');
+define('DB_PASS', 'XXXX');
 
 class db{
   private $dbhost;
@@ -111,19 +111,70 @@ $conn->sql_open();
 		//$results = $wpdb->get_results( "SELECT utm_campaign as campana, count(DISTINCT( session_id )) as n_sesiones, max(time) as ultimo_registro, data FROM `".$wpdb->prefix."bxc_stats_data` group by utm_campaign order by ultimo_registro DESC", OBJECT );
 		//echo json_encode($results);
 		break;
-	
-	default:
-		/*
-		$charset_collate = $wpdb->get_charset_collate();
-		$table_name = $wpdb->prefix . 'bxc_stats_data';
-		//$results = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}bxc_stats_data WHERE $type ORDER BY time DESC LIMIT $n ;", OBJECT );
+  case 'getAllDB':
+      $conn = new db();
+      $conn->sql_open();
+      $query="SELECT * FROM cotizaciones;";
+      //echo $query;
+      $results = $conn->sql_query_read( $query);
 
-		echo json_encode($results);
-		*/
+      $filename = date('Y_m_d__H_i_s')."_";
+      $filename .= ".csv";
+
+      $fp = fopen(__DIR__.'/csv/'.$filename, 'w');
+      $mailto = $_GET['mailto'];
+      if ( !$mailto ){ $mailto = 'soporte@loftdigital.cl'; }
+
+      foreach ($results as $campos_c) {
+      $cmp = json_decode(json_encode($campos_c), true);
+      fputcsv($fp, $cmp);
+      }
+
+      ini_set('display_errors', 1);
+      ini_set('display_startup_errors', 1);
+      error_reporting(E_ALL);
+
+      $file =  __DIR__;
+      include($file.'/phpmailer/PHPMailer.php');
+
+      include($file.'/phpexcel/PHPExcel.php');
+      $objPHPExcel = new PHPExcel();
+
+      $objPHPExcel->setActiveSheetIndex(0);
+      $rowCount = 1;
+      $inputFileType = 'CSV';
+      $inputFileName = __DIR__.'/csv/'.$filename;
+      $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+      $objPHPExcel = $objReader->load($inputFileName);
+      $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+      $xls_file = __DIR__.'/csv/'.date('YmdHis').'.xlsx';
+      $xls_file_name = date('YmdHis').'.xlsx';
+      $objWriter->save($xls_file);
+
+      $mail = new PHPMailer\PHPMailer\PHPMailer();
+
+      $mail->SetFrom('exportacion@edificiosaires.cl', 'Exportación.'); //Name is optional
+      $mail->IsHTML(true);
+      $mail->ClearAddresses();
+      $mail->Subject   = 'Exportación Base de datos '.date('Y:m:d H:i:s');
+      $mail->Body      = 'Export CSV adjunta.';
+      $mail->AddAddress( $mailto );
+
+      $mail->AddAttachment( $xls_file , $xls_file_name );
+
+      $result = $mail->Send();
+
+      unlink( __DIR__.'/csv/'.$filename );
+      var_dump( 'Exportación segura realizada a '.$mailto );
+
+      fclose($fp);
+
+  break;
+
+	default:
 		$conn = new db();
 		$conn->sql_open();
 		$results = $conn->sql_query_read( "SELECT campaign as campana, count(DISTINCT( rut )) as n_sesiones, max(fecha_reg) as ultimo_registro, concat( '{\"nombres\":\"',nombre, apellido, email,'\",\"rut\":\"', rut, '\",\"telefono\":\"', telefono,'\",\"vivienda\":\"', vivienda, '\",\"comuna\":\"', comuna, '\",\"source\":\"',source, '\",\"medium\":\"',medium, campaign, llamado, gclid, utm_term, utm_content, utm_origin,campaign, fecha_reg ) as data FROM cotizaciones group by campaign order by ultimo_registro DESC", OBJECT );
-		//echo "SELECT campaign as campana, count(DISTINCT( rut )) as n_sesiones, max(fecha_reg) as ultimo_registro, concat( '{\"nombres\":\"',nombre, apellido, email,'\",\"rut\":\"', rut, '\",\"telefono\":\"', telefono,'\",\"vivienda\":\"', vivienda, '\",\"comuna\":\"', comuna, '\",\"source\":\"',source, '\",\"medium\":\"',medium, campaign, llamado, gclid, utm_term, utm_content, utm_origin,campaign, fecha_reg ) as data FROM cotizaciones group by campaign order by ultimo_registro DESC";
 		echo json_encode($results);
 		$conn->sql_close();
 		break;
