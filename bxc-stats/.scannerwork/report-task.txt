@@ -1,0 +1,6 @@
+projectKey=bxc-stats
+serverUrl=http://localhost:9000
+serverVersion=9.5.0.56709
+dashboardUrl=http://localhost:9000/dashboard?id=bxc-stats
+ceTaskId=AYJaZykoLVx51V85AZ3G
+ceTaskUrl=http://localhost:9000/api/ce/task?id=AYJaZykoLVx51V85AZ3G
