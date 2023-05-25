@@ -1,4 +1,5 @@
 <?php
+// este se utiliza sólo si es necesario integrar con un sitio que nos ea wordpress
 if ( !isset($_GET['api']) ){ exit(); }
 $api_keys = array('poke5401851','poke5401852' );
 if ( !in_array($_GET['api'] ,$api_keys) ){ echo 'No existe';exit(); }

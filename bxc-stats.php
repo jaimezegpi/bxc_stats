@@ -113,6 +113,22 @@ if ( !function_exists('bxc_stats_add_unique_visit') ){
 				dbDelta( $sql );
 			}
 
+
+			/*-------------------*/
+
+			$view_name_key = $_SESSION['utm_campaign'].'_'.$_SESSION['utm_medium'].'_'.$_SESSION['utm_source'];
+			$results_2 = $wpdb->get_results( "SELECT id,views,forms FROM {$wpdb->prefix}bxc_stats_data_view WHERE campaign = '".$view_name_key."' ;", OBJECT );
+
+			if ( count($results_2) ){
+				$results_id =$results_2[0]->id;
+				$results_views =$results_2[0]->views+1;
+				$sql = ' UPDATE '.$wpdb->prefix.'bxc_stats_data_view  SET time = "'.Date('Y-m-d H:i:s').'", views = '.$results_views.' WHERE id = '.$results_id .';  ';
+				dbDelta( $sql );
+			}else{
+				$sql = ' INSERT INTO '.$wpdb->prefix.'bxc_stats_data_view (time,campaign,f_start,views)VALUES("'.Date('Y-m-d H:i:s').'","'.$view_name_key.'","'.Date('Y-m-d H:i:s').'",1)';
+				dbDelta( $sql );
+			}
+
 		}
 	}
 	add_action( 'template_redirect', 'bxc_stats_add_unique_visit' );
@@ -153,9 +169,27 @@ if ( !function_exists('bxc_stats_add_cf7_form') ){
 			$post_id = $post->ID;
 			if (!$post_id){ $post_id = 0; }
 			/*99=cf7*/
-			$sql = "INSERT INTO ".$wpdb->prefix."bxc_stats_data (post_id,session_id,interaction,url,redirect_url,query_string,time,ip,user_id,utm_campaign,utm_source,utm_medium,utm_content,utm_term,gclid,http_referer,data,name,email,phone,form_id)VALUES(".$post_id.",'".session_id()."',99,'".$request_uri."','".$_SERVER['REDIRECT_URL']."','".$query_string."','".Date('Y-m-d H:i:s')."','".$ip."',".$user_id.",'".$_SESSION['utm_campaign']."','".$_SESSION['utm_source']."','".$_SESSION['utm_medium']."','".$_SESSION['utm_content']."','".$_SESSION['utm_term']."','".$_SESSION['gclid']."','".$referer."','".$data."','".$name."','".$email."','".phone."',".$form_id.")";
+			$sql = "INSERT INTO ".$wpdb->prefix."bxc_stats_data (post_id,session_id,interaction,url,redirect_url,query_string,time,ip,user_id,utm_campaign,utm_source,utm_medium,utm_content,utm_term,gclid,http_referer,data,name,email,phone,form_id)VALUES(".$post_id.",'".session_id()."',99,'".$request_uri."','".$_SERVER['REDIRECT_URL']."','".$query_string."','".Date('Y-m-d H:i:s')."','".$ip."',".$user_id.",'".$_SESSION['utm_campaign']."','".$_SESSION['utm_source']."','".$_SESSION['utm_medium']."','".$_SESSION['utm_content']."','".$_SESSION['utm_term']."','".$_SESSION['gclid']."','".$referer."','".$data."','".$name."','".$email."','".$phone."',".$form_id.")";
 			//file_put_contents("roma.txt", $sql);
 			dbDelta( $sql );
+
+			/*-------------------*/
+			$clean_data = str_replace('"', '\'', $data);
+			$view_name_key = $_SESSION['utm_campaign'].'_'.$_SESSION['utm_medium'].'_'.$_SESSION['utm_source'];
+
+			$results_2 = $wpdb->get_results( "SELECT id,views,forms FROM {$wpdb->prefix}bxc_stats_data_view WHERE campaign = '".$view_name_key."' ;", OBJECT );
+
+			if ( count($results_2) ){
+				$results_id =$results_2[0]->id;
+				$results_forms =$results_2[0]->forms+1;
+				$sql = ' UPDATE '.$wpdb->prefix.'bxc_stats_data_view  SET  last_data = "'.$clean_data.'", time = "'.Date('Y-m-d H:i:s').'", forms = '.$results_forms.' WHERE id = '.$results_id .';  ';
+				dbDelta( $sql );
+			}else{
+				$results_id =$results_2[0]->id;
+				$results_forms =$results_2[0]->forms+1;
+				$sql = ' INSERT INTO '.$wpdb->prefix.'bxc_stats_data_view (time,campaign,f_start,forms)VALUES("'.Date('Y-m-d H:i:s').'","'.$view_name_key.'","'.Date('Y-m-d H:i:s').'",1)';
+				dbDelta( $sql );
+			}
 
 
 		}
@@ -217,8 +251,21 @@ function bxc_stats_plugin_activate() {
 			UNIQUE KEY id (id)
 		) $charset_collate;";
 
+		$table_name_2 = $wpdb->prefix . 'bxc_stats_data_view';
+		$sql2 = "CREATE TABLE $table_name_2 (
+			id mediumint(9) NOT NULL AUTO_INCREMENT,
+			campaign text,
+			f_start text,
+			views int,
+			forms int,
+			last_data text,
+			time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+			UNIQUE KEY id (id)
+		) $charset_collate;";
+
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 		dbDelta( $sql );
+		dbDelta( $sql2 );
 
 }
 register_activation_hook( __FILE__, 'bxc_stats_plugin_activate' );
@@ -383,22 +430,33 @@ if ( !function_exists('bxc_stats_catch_beforme_send') ){
 
 			try {
 				if ( isset( $data['name'] ) ){ $name.=$data['name']." "; }
+				if ( isset( $data['Nombre'] ) ){ $name.=$data['Nombre']." "; }
+				if ( isset( $data['nombreForm'] ) ){ $name.=$data['nombreForm']." "; }
 				if ( isset( $data['NombreyApellidos'] ) ){ $name.=$data['NombreyApellidos']." "; }
-				
 				if ( isset( $data['nombre'] ) ){ $name.=$data['nombre']." "; }
 				if ( isset( $data['nombres'] ) ){ $name.=$data['nombres']." "; }
+				if ( isset( $data['Nombres'] ) ){ $name.=$data['Nombres']." "; }
 				if ( isset( $data['lastname'] ) ){ $name.=$data['lastname']." "; }
+				if ( isset( $data['Apellido'] ) ){ $name.=$data['Nombre']." ".$data['Apellido']." "; }
 				if ( isset( $data['apellido'] ) ){ $name.=$data['apellido']." "; }
 				if ( isset( $data['apellidos'] ) ){ $name.=$data['apellidos']." "; }
 
+
+				if ( isset( $data['PreaprobacionEmail'] ) ){ $email.=$data['PreaprobacionEmail']." "; }
+				if ( isset( $data['Correo'] ) ){ $email.=$data['Correo']." "; }
+				if ( isset( $data['CorreoElectronico'] ) ){ $email.=$data['CorreoElectronico']." "; }
+				if ( isset( $data['Email'] ) ){ $email.=$data['Email']." "; }
 				if ( isset( $data['email'] ) ){ $email.=$data['email']." "; }
 				if ( isset( $data['emails'] ) ){ $email.=$data['emails']." "; }
 				if ( isset( $data['e-mail'] ) ){ $email.=$data['e-mail']." "; }
 				if ( isset( $data['mail'] ) ){ $email.=$data['mail']." "; }
 
+
+				if ( isset( $data['PreaprobacionTelefono'] ) ){ $phone.=$data['PreaprobacionTelefono']." "; }
 				if ( isset( $data['phone'] ) ){ $phone.=$data['phone']." "; }
 				if ( isset( $data['mobil'] ) ){ $phone.=$data['mobil']." "; }
 				if ( isset( $data['mobile'] ) ){ $phone.=$data['mobile']." "; }
+				if ( isset( $data['Telefono'] ) ){ $phone.=$data['telefono']." "; }
 				if ( isset( $data['telefono'] ) ){ $phone.=$data['telefono']." "; }
 				if ( isset( $data['fono'] ) ){ $phone.=$data['fono']." "; }
 				if ( isset( $data['fonos'] ) ){ $phone.=$data['fonos']." "; }
