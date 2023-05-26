@@ -61,7 +61,7 @@ switch ($_GET['bxc-stats-action']) {
 	case 'getCF7FormsNames':
 		$charset_collate = $wpdb->get_charset_collate();
 		$table_name = $wpdb->prefix . 'bxc_stats_data';
-		$results = $wpdb->get_results( "SELECT fm.form_id, fm.time, ( SELECT post_title FROM ".$wpdb->prefix."posts AS x WHERE x.id = fm.form_id LIMIT 1   ) AS name FROM `".$wpdb->prefix."bxc_stats_data` AS fm GROUP BY form_id order by time DESC;", OBJECT );
+		$results = $wpdb->get_results( "SELECT id as form_id, post_date as time, post_title as name  FROM `".$wpdb->prefix."posts` WHERE post_type='wpcf7_contact_form';", OBJECT );
 		echo json_encode($results);
 		break;
 
@@ -69,7 +69,7 @@ switch ($_GET['bxc-stats-action']) {
 	case 'getAllDBCurrentMonth':
 
 		ini_set('memory_limit', '2048M');
-		$query="SELECT * FROM ".$wpdb->prefix ."bxc_stats_data WHERE time LIKE '".date('Y-m-')."%' AND interaction = 99 ORDER BY time DESC LIMIT 10000 ";
+		$query="SELECT * FROM ".$wpdb->prefix ."bxc_stats_data WHERE time LIKE '".date('Y-m-')."%' AND interaction = 99 ORDER BY time DESC LIMIT 100000 ";
 		$site =  get_site_url();
 		//echo $query;
 		$results = $wpdb->get_results( $query);
@@ -131,6 +131,71 @@ switch ($_GET['bxc-stats-action']) {
 
 	break;
 
+	case 'getAllDBByCF7ID':
+
+		ini_set('memory_limit', '2048M');
+		$query="SELECT * FROM ".$wpdb->prefix ."bxc_stats_data WHERE form_id = '".$_GET['form_id']."' AND interaction = 99 ORDER BY time DESC LIMIT 100000 ";
+		$site =  get_site_url();
+		//echo $query;
+		$results = $wpdb->get_results( $query);
+
+		$filename = date('Y_m_d__H_i_s')."_";
+		$filename .= ".csv";
+
+		$fp = fopen(__DIR__.'/../csv/'.$filename, 'w');
+		$mailto = $_GET['mailto'];
+		if ( !$mailto ){ $mailto = 'soporte@loftdigital.cl'; }
+
+		foreach ($results as $campos_c) {
+		$cmp = json_decode(json_encode($campos_c), true);
+		fputcsv($fp, $cmp);
+		}
+
+		$file =  __DIR__;
+		require_once(__DIR__.'/../phpmailer/PHPMailer.php');
+		require_once(__DIR__.'/../phpmailer/Exception.php');
+		include($file.'/../phpexcel/PHPExcel.php');
+
+		$cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_to_phpTemp;
+		$cacheSettings = array( ' memoryCacheSize ' => '128MB');
+		PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);
+
+		$objPHPExcel = new PHPExcel();
+
+		$objPHPExcel->setActiveSheetIndex(0);
+		$rowCount = 1;
+		$inputFileType = 'CSV';
+		$inputFileName = __DIR__.'/../csv/'.$filename;
+		$objReader = PHPExcel_IOFactory::createReader($inputFileType);
+		$objPHPExcel = $objReader->load($inputFileName);
+		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$xls_file = __DIR__.'/../csv/'.get_option( 'blogname' ).'_'.date('Y_m_d__H_i_s').'.xlsx';
+		$xls_file_name =get_option( 'blogname' ).'_'.date('Y_m_d__H_i_s').'.xlsx';
+		$objWriter->save($xls_file);
+
+		$mail = new PHPMailer\PHPMailer\PHPMailer();
+
+		$mail->SetFrom('exportacion@'.$_SERVER['SERVER_NAME'], 'Exportación.'); //Name is optional
+		$mail->IsHTML(true);
+		$mail->ClearAddresses();
+		$mail->Subject   = 'DataBase Export from '.get_option( 'blogname' ).' - '.date('Y:m:d H:i:s');
+		$mail->Body     = 'DataBase  ';
+		$mail->AddAddress( $mailto );
+		//$mail->AddAttachment( __DIR__.'/../csv/'.$filename , 'exportacion2_'.get_site_url().'_'.date('Y_m_d__H_i_s').'.csv' );
+		$mail->AddAttachment( $xls_file,$xls_file_name );
+		if($mail->Send()){
+			//echo $query;
+		    echo '<br>CF7 DataBase sending in excel format to. '.$mailto;
+		}else{
+		    echo 'Email Sending Failed! '.$mail->ErrorInfo;
+		}
+
+		unlink( $xls_file );
+		unlink( $inputFileName );
+
+		fclose($fp);
+
+	break;
 
 	default:
 		$charset_collate = $wpdb->get_charset_collate();
