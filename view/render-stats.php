@@ -81,9 +81,17 @@ switch ($_GET['bxc-stats-action']) {
 		$mailto = $_GET['mailto'];
 		if ( !$mailto ){ $mailto = 'soporte@loftdigital.cl'; }
 
-		foreach ($results as $campos_c) {
-		$cmp = json_decode(json_encode($campos_c), true);
-		fputcsv($fp, $cmp);
+		foreach ($results as $rindex=>$campos_c) {
+			if (!$rindex){
+				$thead=array();
+				foreach ($campos_c as $cindex => $value) {
+					array_push($thead, $cindex);
+				}
+				fputcsv($fp, $thead );
+			}
+			$cmp = json_decode(json_encode($campos_c), true);
+			
+			fputcsv($fp, $cmp);
 		}
 
 		$file =  __DIR__;
@@ -146,9 +154,16 @@ switch ($_GET['bxc-stats-action']) {
 		$mailto = $_GET['mailto'];
 		if ( !$mailto ){ $mailto = 'soporte@loftdigital.cl'; }
 
-		foreach ($results as $campos_c) {
-		$cmp = json_decode(json_encode($campos_c), true);
-		fputcsv($fp, $cmp);
+		foreach ($results as $rindex=>$campos_c) {
+			if (!$rindex){
+				$thead=array();
+				foreach ($campos_c as $cindex => $value) {
+					array_push($thead, $cindex);
+				}
+				fputcsv($fp, $thead );
+			}
+			$cmp = json_decode(json_encode($campos_c), true);
+			fputcsv($fp, $cmp);
 		}
 
 		$file =  __DIR__;
